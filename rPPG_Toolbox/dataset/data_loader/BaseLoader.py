@@ -278,7 +278,7 @@ class BaseLoader(Dataset):
         if backend == "HC":
             # Use OpenCV's Haar Cascade algorithm implementation for face detection
             # This should only utilize the CPU
-            print(os.curdir)
+            
             detector = cv2.CascadeClassifier(
             './rPPG_Toolbox/dataset/haarcascade_frontalface_default.xml')
 
