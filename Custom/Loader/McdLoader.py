@@ -34,7 +34,7 @@ import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
 from tqdm import tqdm
-from retinaface import RetinaFace   # Source code: https://github.com/serengil/retinaface
+#from retinaface import RetinaFace   # Source code: https://github.com/serengil/retinaface
 
 
 
@@ -65,9 +65,9 @@ class McdLoader(BaseLoader):
         df = glob.glob(data_path + os.sep + 'db.csv')
         if len(df) == 0 : 
             raise ValueError(self.dataset_name + " data paths empty!")
-        df = pd.read_csv(glob.glob(data_path + os.sep + 'db.csv'))
-        video = df[['video']].apply(lambda x: glob.glob(data_path + os.sep + x )[0])
-        ppg = df[['ppg']].apply(lambda x: glob.glob(data_path + os.sep + x )[0])
+        df = pd.read_csv(glob.glob(data_path + os.sep + 'db.csv')[0])
+        video = df['video'].apply(lambda x: glob.glob(data_path + os.sep + x )[0])
+        ppg = df['ppg'].apply(lambda x: glob.glob(data_path + os.sep + x )[0])
         return df,video,ppg
 
     def split_raw_data(self, data_dirs, begin, end):
@@ -136,7 +136,7 @@ class McdLoader(BaseLoader):
     def preprocess_dataset_subprocess(self, data_dirs, config_preprocess, i, file_list_dict):
         """ invoked by preprocess_dataset for multi_process."""
         df,video,ppg = data_dirs
-        saved_filename = df[i]+'_'+df[i]['patient_id']
+        saved_filename = str(i)+'_'+str(df['patient_id'][i])
  
         # Read Frames
         if 'None' in config_preprocess.DATA_AUG:
