@@ -2,6 +2,8 @@ import argparse
 import random
 import time
 
+import Custom.Loader
+import Custom.Loader.McdLoader
 import numpy as np
 import torch
 import Custom.Trainer
@@ -79,6 +81,8 @@ def set_loader(name):
         train_loader = data_loader.UBFCPHYSLoader.UBFCPHYSLoader
     elif name == "iBVP":
         train_loader = data_loader.iBVPLoader.iBVPLoader
+    elif name == 'MCD-rPPG':
+        train_loader = Custom.Loader.McdLoader.McdLoader
     elif name == "Custom":
         train_loader = data_loader.UBFCrPPGLoader.UBFCrPPGLoader
     else:
