@@ -1,14 +1,3 @@
-import glob
-import os
-import re
-from multiprocessing import Pool, Process, Value, Array, Manager
-
-import cv2
-import numpy as np
-import pandas as pd
-from rPPG_Toolbox.dataset.data_loader.BaseLoader import BaseLoader
-from tqdm import tqdm
-
 """The Base Class for data-loading.
 
 Provides a pytorch-style data-loader for end-to-end training pipelines.
@@ -24,6 +13,7 @@ from math import ceil
 from scipy import signal
 from scipy import sparse
 from scipy.interpolate import splrep,splev
+from rPPG_Toolbox.dataset.data_loader.BaseLoader import BaseLoader
 from unsupervised_methods.methods import POS_WANG
 from unsupervised_methods import utils
 import math
@@ -67,7 +57,7 @@ class McdLoader(BaseLoader):
             raise ValueError(self.dataset_name + " data paths empty!")
         df = pd.read_csv(glob.glob(data_path + os.sep + 'db.csv')[0])
         video = df['video'].apply(lambda x: glob.glob(data_path + os.sep + x )[0])
-        ppg = df['ppg'].apply(lambda x: glob.glob(data_path + os.sep + x )[0])
+        ppg = df['ppg_sync'].apply(lambda x: glob.glob(data_path + os.sep + x )[0])
         return df,video,ppg
 
     def split_raw_data(self, data_dirs, begin, end):
@@ -137,7 +127,7 @@ class McdLoader(BaseLoader):
         """ invoked by preprocess_dataset for multi_process."""
         df,video,ppg = data_dirs
         saved_filename = str(i)+'_'+str(df['patient_id'][i])
- 
+
         # Read Frames
         if 'None' in config_preprocess.DATA_AUG:
             # Utilize dataset-specific function to read video
@@ -149,13 +139,13 @@ class McdLoader(BaseLoader):
                 glob.glob(os.path.join(video[i])))
         else:
             raise ValueError(f'Unsupported DATA_AUG specified for {self.dataset_name} dataset! Received {config_preprocess.DATA_AUG}.')
-        len = frames/float(self.config_data.FS)
+        len = frames.shape[0]/float(self.config_data.FS)
         # Read Labels
         if config_preprocess.USE_PSUEDO_PPG_LABEL:
             bvps = self.generate_pos_psuedo_labels(frames, fs=self.config_data.FS)
         else:
             bvps = self.read_wave(
-                os.path.join(ppg[i]), fs=self.config_data.FS,len=len)
+                os.path.join(ppg[i]), fs=self.config_data.FS,len_=len)
             
         frames_clips, bvps_clips = self.preprocess(frames, bvps, config_preprocess)
         input_name_list, label_name_list = self.save_multi_process(frames_clips, bvps_clips, saved_filename)
@@ -176,7 +166,7 @@ class McdLoader(BaseLoader):
         return np.asarray(frames)
 
     @staticmethod
-    def read_wave(bvp_file,fs=30,bvp_fs= 100,len = None):
+    def read_wave(bvp_file,fs=30,bvp_fs= 100,len_ = None):
         """Reads a bvp signal file."""
         with open(bvp_file, "r") as f:
             str1 = f.read()
@@ -187,6 +177,6 @@ class McdLoader(BaseLoader):
             else:
                 inter = False
         if inter:
-            inter = splrep(np.linspace(0, len, 100),k=3)
-            bvp = splev(np.linspace(0, len, 30),inter)
+            inter = splrep(x=np.linspace(0, len_, bvp_fs),y=bvp,k=3)
+            bvp = splev(np.linspace(0, len_, 30),inter)
         return np.asarray(bvp)

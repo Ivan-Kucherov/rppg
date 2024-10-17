@@ -1,6 +1,5 @@
 import math
 
-import cv2
 import numpy as np
 from scipy import io as scio
 from scipy import linalg

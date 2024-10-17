@@ -236,7 +236,9 @@ if __name__ == "__main__":
     if config.TOOLBOX_MODE == "train_and_test":
         train_and_test(config, data_loader_dict)
     elif config.TOOLBOX_MODE == "only_test":
+        s = time.time()
         test(config, data_loader_dict)
+        print(time.time()-s)
     elif config.TOOLBOX_MODE == "unsupervised_method":
         unsupervised_method_inference(config, data_loader_dict)
     else:

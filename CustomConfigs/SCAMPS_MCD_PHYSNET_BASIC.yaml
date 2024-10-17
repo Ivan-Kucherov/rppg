@@ -1,0 +1,56 @@
+BASE:
+- ''
+DEVICE: cpu
+INFERENCE:
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: FFT
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: false
+    WINDOW_SIZE: 10
+  MODEL_PATH: ./rPPG_Toolbox/final_model_release/SCAMPS_PhysNet_DiffNormalized.pth
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.2
+  NAME: Physnet
+  PHYSNET:
+    FRAME_NUM: 128
+NUM_OF_GPU_TRAIN: 1
+TEST:
+  DATA:
+    BEGIN: 0.0
+    CACHED_PATH: ./data/Custom_cached
+    DATASET: MCD-rPPG
+    DATA_FORMAT: NCDHW
+    DATA_PATH: E:/FirstProj/mcd_rppg
+    DO_PREPROCESS: true
+    END: 0.001
+    EXP_DATA_NAME: ''
+    FS: 30
+    PREPROCESS:
+      CHUNK_LENGTH: 128
+      CROP_FACE:
+        BACKEND: MP
+        DETECTION:
+          DO_DYNAMIC_DETECTION: false
+          DYNAMIC_DETECTION_FREQUENCY: 32
+          USE_MEDIAN_FACE_BOX: false
+        DO_CROP_FACE: true
+        LARGE_BOX_COEF: 1.5
+        USE_LARGE_FACE_BOX: true
+      DATA_TYPE:
+      - DiffNormalized
+      DO_CHUNK: true
+      LABEL_TYPE: DiffNormalized
+      RESIZE:
+        H: 72
+        W: 72
+  METRICS:
+  - MAE
+  - RMSE
+  - MAPE
+  - Pearson
+  - SNR
+  - BA
+  USE_LAST_EPOCH: true
+TOOLBOX_MODE: only_test

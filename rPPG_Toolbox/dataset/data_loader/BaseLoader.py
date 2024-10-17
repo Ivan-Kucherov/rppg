@@ -17,12 +17,14 @@ from unsupervised_methods import utils
 import math
 from multiprocessing import Pool, Process, Value, Array, Manager
 
+import wget
 import cv2
 import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
 from tqdm import tqdm
 #from retinaface import RetinaFace   # Source code: https://github.com/serengil/retinaface
+import mediapipe as mp
 
 
 class BaseLoader(Dataset):
@@ -327,6 +329,49 @@ class BaseLoader(Dataset):
                 # Determine the size of the square (use the maximum of width and height)
                 square_size = max(width, height)
                 
+                # Calculate the new coordinates for a square face zone
+                new_x = center_x - (square_size // 2)
+                new_y = center_y - (square_size // 2)
+                face_box_coor = [new_x, new_y, square_size, square_size]
+            else:
+                print("ERROR: No Face Detected")
+                face_box_coor = [0, 0, frame.shape[0], frame.shape[1]]
+        elif backend == 'MP':
+            file = './rPPG_Toolbox/dataset/detector.tflite'
+            if not os.path.exists(file):
+                wget.download('https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite', out='./rPPG_Toolbox/dataset/detector.tflite')
+            base_options = mp.tasks.BaseOptions(model_asset_path=file)
+            options = mp.tasks.vision.FaceDetectorOptions(base_options=base_options)
+            detector = mp.tasks.vision.FaceDetector.create_from_options(options)
+
+            # STEP 3: Load the input image.
+            image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
+
+            # STEP 4: Detect faces in the input image.
+            res = detector.detect(image)
+            if len(res.detections) > 0:
+                # Pick the highest score
+                max_ = 0
+                max_id = 0
+                for id,det in enumerate(res.detections):
+                    if max_ < det.categories[0].score:
+                        max_id = id
+                        max_ = det.categories[0].score
+                highest_score_face = res.detections[max_id]
+                face_zone = highest_score_face.bounding_box
+
+                x = face_zone.origin_x
+                y = face_zone.origin_y
+                width = face_zone.width
+                height = face_zone.height
+
+                # Find the center of the face zone
+                center_x = x + width // 2
+                center_y = y + height // 2
+
+                # Determine the size of the square (use the maximum of width and height)
+                square_size = max(width, height)
+
                 # Calculate the new coordinates for a square face zone
                 new_x = center_x - (square_size // 2)
                 new_y = center_y - (square_size // 2)
