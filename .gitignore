@@ -1,5 +1,6 @@
 data
-runs
+
 .vscode
 mcd_rppg
 rPPG+Toolbox/.venv
+*.pyc

@@ -7,12 +7,14 @@ INFERENCE:
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: false
     WINDOW_SIZE: 10
-  MODEL_PATH: ./rPPG_Toolbox/final_model_release/PURE_DeepPhys.pth
+  MODEL_PATH: ./rPPG_Toolbox/final_model_release/PURE_EfficientPhys.pth
 LOG:
   PATH: runs/exp
 MODEL:
   DROP_RATE: 0.2
-  NAME: DeepPhys
+  EFFICIENTPHYS:
+    FRAME_DEPTH: 10
+  NAME: EfficientPhys
 NUM_OF_GPU_TRAIN: 1
 TEST:
   DATA:
@@ -22,22 +24,23 @@ TEST:
     DATA_FORMAT: NDCHW
     DATA_PATH: E:/FirstProj/mcd_rppg
     DO_PREPROCESS: true
-    END: 0.001
+    END: 0.003
     EXP_DATA_NAME: ''
     FS: 30
     PREPROCESS:
-      CHUNK_LENGTH: 180
+      CHUNK_LENGTH: 210
       CROP_FACE:
         BACKEND: MP
         DETECTION:
-          DO_DYNAMIC_DETECTION: false
-          DYNAMIC_DETECTION_FREQUENCY: 30
-          USE_MEDIAN_FACE_BOX: false
+          DO_DYNAMIC_DETECTION: true
+          DYNAMIC_DETECTION_FREQUENCY: 35
+          USE_MEDIAN_FACE_BOX: true
         DO_CROP_FACE: true
         LARGE_BOX_COEF: 1.5
+        MP:
+          ONLY_FACE: true
         USE_LARGE_FACE_BOX: true
       DATA_TYPE:
-      - DiffNormalized
       - Standardized
       DO_CHUNK: true
       LABEL_TYPE: DiffNormalized

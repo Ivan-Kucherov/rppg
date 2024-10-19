@@ -20,11 +20,11 @@ TEST:
   DATA:
     BEGIN: 0.0
     CACHED_PATH: ./data/Custom_cached
-    DATASET: MCD-rPPG
+    DATASET: SCAMPS
     DATA_FORMAT: NDCHW
-    DATA_PATH: E:/FirstProj/mcd_rppg
+    DATA_PATH: ./data/SCAMPS/Val_all
     DO_PREPROCESS: true
-    END: 0.001
+    END: 1.0
     EXP_DATA_NAME: ''
     FS: 30
     PREPROCESS:
@@ -37,6 +37,8 @@ TEST:
           USE_MEDIAN_FACE_BOX: true
         DO_CROP_FACE: true
         LARGE_BOX_COEF: 1.5
+        MP:
+          ONLY_FACE: true
         USE_LARGE_FACE_BOX: true
       DATA_TYPE:
       - Standardized
