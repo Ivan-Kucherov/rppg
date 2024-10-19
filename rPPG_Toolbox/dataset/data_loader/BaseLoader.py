@@ -234,7 +234,8 @@ class BaseLoader(Dataset):
             config_preprocess.CROP_FACE.DETECTION.DYNAMIC_DETECTION_FREQUENCY,
             config_preprocess.CROP_FACE.DETECTION.USE_MEDIAN_FACE_BOX,
             config_preprocess.RESIZE.W,
-            config_preprocess.RESIZE.H)
+            config_preprocess.RESIZE.H,
+            config_preprocess.CROP_FACE.MP.ONLY_FACE)
         # Check data transformation type
         data = list()  # Video data
         for data_type in config_preprocess.DATA_TYPE:
@@ -388,9 +389,22 @@ class BaseLoader(Dataset):
             face_box_coor[2] = larger_box_coef * face_box_coor[2]
             face_box_coor[3] = larger_box_coef * face_box_coor[3]
         return face_box_coor
+    def mask_resized_face(self,frame):
+        file = './rPPG_Toolbox/dataset/selfie_segmenter.tflite'
+        if not os.path.exists(file):
+                wget.download('https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite', out='./rPPG_Toolbox/dataset/selfie_segmenter.tflite')
+        base_options = mp.tasks.BaseOptions(model_asset_path=file)
+        options = mp.tasks.vision.ImageSegmenterOptions(base_options=base_options,
+                                            output_category_mask=True)
+        segmenter = mp.tasks.vision.ImageSegmenter.create_from_options(options)
+        image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
+        segmentation_result = segmenter.segment(image)
+        category_mask = segmentation_result.category_mask.numpy_view()
+        frame = np.where(np.stack((category_mask,) * 3, axis=-1) == 0,frame,0)
+        return frame
 
     def crop_face_resize(self, frames, use_face_detection, backend, use_larger_box, larger_box_coef, use_dynamic_detection, 
-                         detection_freq, use_median_box, width, height):
+                         detection_freq, use_median_box, width, height,only_face = False):
         """Crop face and resize frames.
 
         Args:
@@ -416,7 +430,7 @@ class BaseLoader(Dataset):
         face_region_all = []
         # Perform face detection by num_dynamic_det" times.
         for idx in range(num_dynamic_det):
-            if use_face_detection:
+            if use_face_detection:   
                 face_region_all.append(self.face_detection(frames[detection_freq * idx], backend, use_larger_box, larger_box_coef))
             else:
                 face_region_all.append([0, 0, frames.shape[1], frames.shape[2]])
@@ -440,7 +454,10 @@ class BaseLoader(Dataset):
                     face_region = face_region_all[reference_index]
                 frame = frame[max(face_region[1], 0):min(face_region[1] + face_region[3], frame.shape[0]),
                         max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
-            resized_frames[i] = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
+                frame = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
+                if only_face:
+                    frame = self.mask_resized_face(frame)
+            resized_frames[i] = frame
         return resized_frames
 
     def chunk(self, frames, bvps, chunk_length):

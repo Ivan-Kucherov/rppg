@@ -72,6 +72,8 @@ _C.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE = CN()
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE = True
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE.BACKEND = 'HC'
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE.MP = CN()
+_C.TRAIN.DATA.PREPROCESS.CROP_FACE.MP.ONLY_FACE = True
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX = True
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF = 1.5
 _C.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
@@ -136,7 +138,9 @@ _C.VALID.DATA.PREPROCESS.DO_CHUNK = True
 _C.VALID.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.VALID.DATA.PREPROCESS.CROP_FACE = CN()
 _C.VALID.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE = True
-_C.VALID.DATA.PREPROCESS.CROP_FACE.BACKEND = 'HC'
+_C.VALID.DATA.PREPROCESS.CROP_FACE.BACKEND = 'MP'
+_C.VALID.DATA.PREPROCESS.CROP_FACE.MP = CN()
+_C.VALID.DATA.PREPROCESS.CROP_FACE.MP.ONLY_FACE = True
 _C.VALID.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX = True
 _C.VALID.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF = 1.5
 _C.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
@@ -203,7 +207,9 @@ _C.TEST.DATA.PREPROCESS.DO_CHUNK = True
 _C.TEST.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.TEST.DATA.PREPROCESS.CROP_FACE = CN()
 _C.TEST.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE = True
-_C.TEST.DATA.PREPROCESS.CROP_FACE.BACKEND = 'HC'
+_C.TEST.DATA.PREPROCESS.CROP_FACE.BACKEND = 'MP'
+_C.TEST.DATA.PREPROCESS.CROP_FACE.MP = CN()
+_C.TEST.DATA.PREPROCESS.CROP_FACE.MP.ONLY_FACE = True
 _C.TEST.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX = True
 _C.TEST.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF = 1.5
 _C.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
@@ -269,7 +275,9 @@ _C.UNSUPERVISED.DATA.PREPROCESS.DO_CHUNK = True
 _C.UNSUPERVISED.DATA.PREPROCESS.CHUNK_LENGTH = 180
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE = CN()
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE = True
-_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.BACKEND = 'HC'
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.BACKEND = 'MP'
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.MP = CN()
+_C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.MP.ONLY_FACE = True
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX = True
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF = 1.5
 _C.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION = CN()
@@ -396,6 +404,7 @@ def update_config(config, args):
                                       "LabelType{0}".format(config.TRAIN.DATA.PREPROCESS.LABEL_TYPE),
                                       "Crop_face{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
                                       "Backend{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.BACKEND),
+                                      "MP_only_face{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.MP.ONLY_FACE),
                                       "Large_box{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
                                       "Large_size{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
                                       "Dyamic_Det{0}".format(config.TRAIN.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
@@ -432,6 +441,7 @@ def update_config(config, args):
                                         "LabelType{0}".format(config.VALID.DATA.PREPROCESS.LABEL_TYPE),
                                         "Crop_face{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
                                         "Backend{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.BACKEND),
+                                        "MP_only_face{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.MP.ONLY_FACE),
                                         "Large_box{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
                                         "Large_size{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
                                         "Dyamic_Det{0}".format(config.VALID.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
@@ -469,6 +479,7 @@ def update_config(config, args):
                                       "LabelType{0}".format(config.TEST.DATA.PREPROCESS.LABEL_TYPE),
                                       "Crop_face{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
                                       "Backend{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.BACKEND),
+                                      "MP_only_face{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.MP.ONLY_FACE),
                                       "Large_box{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
                                       "Large_size{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
                                       "Dyamic_Det{0}".format(config.TEST.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
@@ -538,6 +549,7 @@ def update_config(config, args):
                                       "LabelType{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.LABEL_TYPE),
                                       "Crop_face{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DO_CROP_FACE),
                                       "Backend{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.BACKEND),
+                                      "MP_only_face{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.MP.ONLY_FACE),
                                       "Large_box{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.USE_LARGE_FACE_BOX),
                                       "Large_size{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.LARGE_BOX_COEF),
                                       "Dyamic_Det{0}".format(config.UNSUPERVISED.DATA.PREPROCESS.CROP_FACE.DETECTION.DO_DYNAMIC_DETECTION),
