@@ -1,10 +1,11 @@
-import dataset.data_loader.BaseLoader
-import dataset.data_loader.COHFACELoader
-import dataset.data_loader.UBFCrPPGLoader
-import dataset.data_loader.PURELoader
-import dataset.data_loader.iBVPLoader
-import dataset.data_loader.SCAMPSLoader
-import dataset.data_loader.MMPDLoader
-import dataset.data_loader.BP4DPlusLoader
-import dataset.data_loader.BP4DPlusBigSmallLoader
-import dataset.data_loader.UBFCPHYSLoader
+from rPPG_Toolbox import dataset
+import rPPG_Toolbox.dataset.data_loader.BaseLoader
+import rPPG_Toolbox.dataset.data_loader.COHFACELoader
+import rPPG_Toolbox.dataset.data_loader.UBFCrPPGLoader
+import rPPG_Toolbox.dataset.data_loader.PURELoader
+import rPPG_Toolbox.dataset.data_loader.iBVPLoader
+import rPPG_Toolbox.dataset.data_loader.SCAMPSLoader
+import rPPG_Toolbox.dataset.data_loader.MMPDLoader
+import rPPG_Toolbox.dataset.data_loader.BP4DPlusLoader
+import rPPG_Toolbox.dataset.data_loader.BP4DPlusBigSmallLoader
+import rPPG_Toolbox.dataset.data_loader.UBFCPHYSLoader

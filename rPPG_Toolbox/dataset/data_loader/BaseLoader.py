@@ -10,8 +10,10 @@ import glob
 import os
 import re
 from math import ceil
+#from jax import config
 from scipy import signal
 from scipy import sparse
+import torch
 from unsupervised_methods.methods import POS_WANG
 from unsupervised_methods import utils
 import math
@@ -61,6 +63,8 @@ class BaseLoader(Dataset):
         self.data_format = config_data.DATA_FORMAT
         self.do_preprocess = config_data.DO_PREPROCESS
         self.config_data = config_data
+
+
 
         assert (config_data.BEGIN < config_data.END)
         assert (config_data.BEGIN > 0 or config_data.BEGIN == 0)
@@ -346,8 +350,9 @@ class BaseLoader(Dataset):
             detector = mp.tasks.vision.FaceDetector.create_from_options(options)
 
             # STEP 3: Load the input image.
+            shape = frame.shape
+            frame = frame.reshape(-1).reshape(shape)
             image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
-
             # STEP 4: Detect faces in the input image.
             res = detector.detect(image)
             if len(res.detections) > 0:
@@ -389,7 +394,36 @@ class BaseLoader(Dataset):
             face_box_coor[2] = larger_box_coef * face_box_coor[2]
             face_box_coor[3] = larger_box_coef * face_box_coor[3]
         return face_box_coor
-    def mask_resized_face(self,frame):
+    
+    def mask_resized_face_landmark(self,frame):
+        file = './rPPG_Toolbox/dataset/face_landmarker.task'
+        if not os.path.exists(file):
+                wget.download('https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task', out='./rPPG_Toolbox/dataset/face_landmarker.task')
+    
+        base_options = mp.tasks.BaseOptions(model_asset_path=file)
+        options = mp.tasks.vision.FaceLandmarkerOptions(base_options=base_options,num_faces=1)
+        face_landmarker = mp.tasks.vision.FaceLandmarker.create_from_options(options)
+        image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
+        result = face_landmarker.detect(image)
+        if len(result.face_landmarks) > 0 :
+            points = (np.array([[i.y,i.x] for i in result.face_landmarks[0]]) * frame.shape[:2]).astype(np.int32)[:,::-1]
+            face = np.take(points, [10,297,332,251,264,447,323,435,397,365,379,400,377,152,176,149,136,172,58,93,127,21,103,67,10], axis=0)
+            eye1 = np.take(points, [35,124,53,105,66,107,55,244,231,228], axis=0)
+            eye2 = np.take(points, [465,336,334,293,300,265,448,450,452], axis=0)
+            lips = np.take(points, [57,92,167,393,410,287,335,313,83,182,106], axis=0)
+            mask = np.zeros((frame.shape[0], frame.shape[1]))
+            cv2.fillConvexPoly(mask, face, 1)
+            cv2.fillConvexPoly(mask,eye1, 0)
+            cv2.fillConvexPoly(mask,eye2, 0)
+            cv2.fillConvexPoly(mask,lips, 0)
+            mask = mask.astype(bool)
+            out = np.zeros_like(frame)
+            out[mask] = frame[mask]
+            return out
+        else:
+            return frame
+    
+    def mask_resized_face_selfie(self,frame):
         file = './rPPG_Toolbox/dataset/selfie_segmenter.tflite'
         if not os.path.exists(file):
                 wget.download('https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite', out='./rPPG_Toolbox/dataset/selfie_segmenter.tflite')
@@ -402,6 +436,7 @@ class BaseLoader(Dataset):
         category_mask = segmentation_result.category_mask.numpy_view()
         frame = np.where(np.stack((category_mask,) * 3, axis=-1) == 0,frame,0)
         return frame
+
 
     def crop_face_resize(self, frames, use_face_detection, backend, use_larger_box, larger_box_coef, use_dynamic_detection, 
                          detection_freq, use_median_box, width, height,only_face = False):
@@ -456,7 +491,7 @@ class BaseLoader(Dataset):
                         max(face_region[0], 0):min(face_region[0] + face_region[2], frame.shape[1])]
                 frame = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
                 if only_face:
-                    frame = self.mask_resized_face(frame)
+                    frame = self.mask_resized_face_landmark(frame)
             resized_frames[i] = frame
         return resized_frames
 

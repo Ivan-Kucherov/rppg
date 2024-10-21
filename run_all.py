@@ -11,12 +11,12 @@ def change(data):
     data['TEST']['DATA']['CACHED_PATH'] = './data/Custom_cached'
 
     data['TEST']['DATA']['BEGIN'] = 0.0
-    data['TEST']['DATA']['END'] = 0.001
+    data['TEST']['DATA']['END'] = 0.003
 
     data['TEST']['DATA']['PREPROCESS']['CROP_FACE']['BACKEND'] = 'MP'
     return data
 if __name__ == "__main__":
-    for i in tqdm(glob.glob('./CustomConfigs/*.yaml')):
+    for i in tqdm(glob.glob('./CustomConfigsMCD/*.yaml')):
         with open(i) as fp:
             data = yaml.load(fp,Loader=yaml.FullLoader)
             data = change(data)
